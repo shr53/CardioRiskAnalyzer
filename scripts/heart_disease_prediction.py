@@ -5,8 +5,8 @@ import streamlit as st
 
 # Set page configuration
 st.set_page_config(
-    page_title="CardioRisk Analyzer1",
-    page_icon="💓",
+    page_title="CardioRisk Analyzer",
+    page_icon="❤️",
     layout="centered",
     initial_sidebar_state="expanded"
 )
@@ -62,21 +62,30 @@ def main():
         unsafe_allow_html=True
     )
     st.sidebar.title("Parameter Selection")
-
+    # Define a dictionary to map "Yes" and "No" to numeric values
+    yes_no_mapping = {"No": 0, "Yes": 1}
     # User input fields
     physicalhealthdays = st.sidebar.number_input("Physical Health Days", min_value=0, max_value=365)
     mentalhealthdays = st.sidebar.number_input("Mental Health Days", min_value=0, max_value=365)
     physicalactivities = st.sidebar.number_input("Physical Activities", min_value=0, max_value=24)
     sleephours = st.sidebar.number_input("Sleep Hours", min_value=0.0, max_value=24.0, step=0.5)
-    hadstroke = st.sidebar.selectbox("Had Stroke", [0, 1])
-    hadasthma = st.sidebar.selectbox("Had Asthma", [0, 1])
-    hadcopd = st.sidebar.selectbox("Had COPD", [0, 1])
-    haddepressivedisorder = st.sidebar.selectbox("Had Depressive Disorder", [0, 1])
-    difficultyconcentrating = st.sidebar.selectbox("Difficulty Concentrating", [0, 1])
-    difficultywalking = st.sidebar.selectbox("Difficulty Walking", [0, 1])
+    hadstroke = st.sidebar.selectbox("Had Stroke", ["No", "Yes"])
+    hadstroke = yes_no_mapping[hadstroke]  # Map "Yes" and "No" to 1 and 0
+    hadasthma = st.sidebar.selectbox("Had Asthma", ["No", "Yes"])
+    hadasthma = yes_no_mapping[hadasthma]  # Map "Yes" and "No" to 1 and 0
+    hadcopd = st.sidebar.selectbox("Had COPD", ["No", "Yes"])
+    hadcopd = yes_no_mapping[hadcopd]  # Map "Yes" and "No" to 1 and 0
+    haddepressivedisorder = st.sidebar.selectbox("Had Depressive Disorder", ["No", "Yes"])
+    haddepressivedisorder = yes_no_mapping[haddepressivedisorder]  # Map "Yes" and "No" to 1 and 0
+    difficultyconcentrating = st.sidebar.selectbox("Difficulty Concentrating", ["No", "Yes"])
+    difficultyconcentrating = yes_no_mapping[difficultyconcentrating]  # Map "Yes" and "No" to 1 and 0
+    difficultywalking = st.sidebar.selectbox("Difficulty Walking", ["No", "Yes"])
+    difficultywalking = yes_no_mapping[difficultywalking]  # Map "Yes" and "No" to 1 and 0
     bmi = st.sidebar.number_input("BMI", min_value=10.0, max_value=50.0)
-    alcoholdrinkers = st.sidebar.selectbox("Alcohol Drinkers", [0, 1])
-    had_diabetes = st.sidebar.selectbox("Had Diabetes", [0, 1])
+    alcoholdrinkers = st.sidebar.selectbox("Alcohol Drinkers", ["No", "Yes"])
+    alcoholdrinkers = yes_no_mapping[alcoholdrinkers]  # Map "Yes" and "No" to 1 and 0
+    had_diabetes = st.sidebar.selectbox("Had Diabetes", ["No", "Yes"])
+    had_diabetes = yes_no_mapping[had_diabetes]  # Map "Yes" and "No" to 1 and 0
     age_range = st.sidebar.selectbox("Age Range", ["18 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 or older"])
     received_vaccine = st.sidebar.selectbox("Received Vaccine", ["Tetanus", "Not Received", "TDAP"])
     smoking_status = st.sidebar.selectbox("Smoking Status", ["Never Smoked", "Current Smoker", "Former Smoker"])
@@ -93,15 +102,23 @@ def main():
 
         # Pass the features to the prediction function
         result = predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
-        
-    # Show the result
         # Display prediction result
         if result == 1:  # If prediction is Yes
-            st.success("Prediction: You are at risk of heart disease!")
-            st.image("risk_image.jpg", caption="Heart Disease Risk", use_column_width=True)
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
+                image_path1 = r"..\images\un_healthy.jpg"
+                st.image(image_path1, width=300)
+
         else:  # If prediction is No
-            st.success("Prediction: You are not at risk of heart disease.")
-            st.image("D:/MPS Analytics/CardioRiskAnalyzer/images/safe_image.png", caption="Healthy Heart", use_column_width=True)
+            #Get the image path
+            image_path = "..\images\healthy_heart.png" 
+            # Center-align the image using Streamlit's layout options
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
+                # Display the image with custom width
+                st.image(image_path, width=300)
 
 if __name__ == "__main__":
     main()
