@@ -10,6 +10,8 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
+# Print the current working directory
+print("Current working directory:", os.getcwd())
 
 # Load the pre-trained model
 model_file_path = "../models/random_forest_model.pkl"
