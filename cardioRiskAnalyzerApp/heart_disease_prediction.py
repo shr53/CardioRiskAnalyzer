@@ -14,6 +14,7 @@ def predict_heart_attack(model, data, physicalhealthdays, mentalhealthdays, phys
     yes_no_mapping = {"No": 0, "Yes": 1}
 
     # Map categorical features to numerical values
+    physicalactivities = yes_no_mapping[physicalactivities]
     hadstroke = yes_no_mapping[hadstroke]
     hadasthma = yes_no_mapping[hadasthma]
     hadcopd = yes_no_mapping[hadcopd]
@@ -84,17 +85,17 @@ def main():
     st.sidebar.title("Parameter Selection")
     
     # User input fields
-    physicalhealthdays = st.sidebar.number_input("Physical Health Days", min_value=0, max_value=365)
-    mentalhealthdays = st.sidebar.number_input("Mental Health Days", min_value=0, max_value=365)
-    physicalactivities = st.sidebar.number_input("Physical Activities", min_value=0, max_value=24)
-    sleephours = st.sidebar.number_input("Sleep Hours", min_value=0.0, max_value=24.0, step=0.5)
+    physicalhealthdays = st.sidebar.slider("Physical Health Days", min_value=0, max_value=30, value=15)
+    mentalhealthdays = st.sidebar.slider("Mental Health Days", min_value=0, max_value=30, value=15)
+    sleephours = st.sidebar.slider("Sleep Hours", min_value=0, max_value=30, value=15)
+    physicalactivities = st.sidebar.selectbox("Physical Activities", ["No", "Yes"])
     hadstroke = st.sidebar.selectbox("Had Stroke", ["No", "Yes"])
     hadasthma = st.sidebar.selectbox("Had Asthma", ["No", "Yes"])
     hadcopd = st.sidebar.selectbox("Had COPD", ["No", "Yes"])
     haddepressivedisorder = st.sidebar.selectbox("Had Depressive Disorder", ["No", "Yes"])
     difficultyconcentrating = st.sidebar.selectbox("Difficulty Concentrating", ["No", "Yes"])
     difficultywalking = st.sidebar.selectbox("Difficulty Walking", ["No", "Yes"])
-    bmi = st.sidebar.number_input("BMI", min_value=10.0, max_value=50.0)
+    bmi = st.sidebar.text_input("BMI (between 12 and 90)")
     alcoholdrinkers = st.sidebar.selectbox("Alcohol Drinkers", ["No", "Yes"])
     had_diabetes = st.sidebar.selectbox("Had Diabetes", ["No", "Yes"])
     age_range = st.sidebar.selectbox("Age Range", ["18 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 or older"])
@@ -104,19 +105,23 @@ def main():
     result = None  # Initialize result variable
 
     if st.sidebar.button("Predict"):
-        # Assign a value to received_vaccine first
-        received_vaccine_mapping = {"Tetanus": 1, "Not Received": 0, "TDAP": 1}
-        received_vaccine_val = received_vaccine_mapping[received_vaccine]
-        
-        # Calculate other variables based on received_vaccine value
-        received_tetanus = 1 if received_vaccine == "Tetanus" else 0
-        received_not = 1 if received_vaccine == "Not Received" else 0
-        received_tdap = 1 if received_vaccine == "TDAP" else 0
-        smoking_never_smoked = 1 if smoking_status == "Never Smoked" else 0
-        smoking_current_smoker = 1 if smoking_status == "Current Smoker" else 0
-        smoking_former_smoker = 1 if smoking_status == "Former Smoker" else 0
+        # Check if BMI input is valid
+        if bmi == "Enter your BMI here":
+            st.error("Please enter a valid BMI.")
+        else:
+            # Assign a value to received_vaccine first
+            received_vaccine_mapping = {"Tetanus": 1, "Not Received": 0, "TDAP": 1}
+            received_vaccine_val = received_vaccine_mapping[received_vaccine]
+            
+            # Calculate other variables based on received_vaccine value
+            received_tetanus = 1 if received_vaccine == "Tetanus" else 0
+            received_not = 1 if received_vaccine == "Not Received" else 0
+            received_tdap = 1 if received_vaccine == "TDAP" else 0
+            smoking_never_smoked = 1 if smoking_status == "Never Smoked" else 0
+            smoking_current_smoker = 1 if smoking_status == "Current Smoker" else 0
+            smoking_former_smoker = 1 if smoking_status == "Former Smoker" else 0
 
-        result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_range, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
+            result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, float(bmi), alcoholdrinkers, had_diabetes, age_range, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
         
     if result is not None:
         col1, col2, col3 = st.columns([1, 2, 1])
