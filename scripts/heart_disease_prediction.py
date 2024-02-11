@@ -17,6 +17,7 @@ st.set_page_config(
 # Load the pre-trained model
 model_file_path = "random_forest_model.pkl"
 random_forest = joblib.load(model_file_path)
+print("Model file path:", os.path.abspath(model_file_path))
 
 heart_df = pd.read_csv("heart_disease_preprocessed_data.csv")
 
