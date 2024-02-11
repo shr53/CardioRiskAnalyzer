@@ -100,10 +100,10 @@ def main():
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
-                image_path1 = "un_healthy.jpg"
+                image_path1 = os.path.join(script_directory, "un_healthy.jpg")
                 st.image(image_path1, width=300)
         else:
-            image_path = "healthy_heart.png"
+            image_path = os.path.join(script_directory, "healthy_heart.png")
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
