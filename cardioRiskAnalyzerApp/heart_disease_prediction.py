@@ -128,9 +128,11 @@ def main():
         if result == 1:
             with col2:
                 st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
+                st.image("un_healthy.jpg", use_column_width=True)  # Display image for safe
         elif result == 0:
             with col2:
                 st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
+                st.image("healthy_heart.png", use_column_width=True)  # Display image for safe
 
 if __name__ == "__main__":
     main()
