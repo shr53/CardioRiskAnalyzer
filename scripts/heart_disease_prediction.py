@@ -13,19 +13,19 @@ st.set_page_config(
 
 import os
 
-# Define function to get model file path
-def get_model_file_path():
-    # Use os.path.join() for model file path
-    return os.path.join("..", "models", "random_forest_model.pkl")
+# Define function to get model file URL
+def get_model_file_url():
+    # URL for the model file hosted on GitHub
+    return "https://raw.githubusercontent.com/shr53/CardioRiskAnalyzer/main/models/random_forest_model.pkl"
 
 # Load the pre-trained model
-model_file_path = get_model_file_path()
-random_forest = joblib.load(model_file_path)
+model_file_url = get_model_file_url()
+random_forest = joblib.load(model_file_url)
 
 # Define function to load heart data
 def load_heart_data():
-    # Use os.path.join() for CSV data file path
-    return pd.read_csv(os.path.join("..", "data", "heart_disease_preprocessed_data.csv"))
+    # URL for the CSV data file hosted on GitHub
+    return pd.read_csv("https://raw.githubusercontent.com/shr53/CardioRiskAnalyzer/main/data/heart_disease_preprocessed_data.csv")
 
 heart_df = load_heart_data()
 
