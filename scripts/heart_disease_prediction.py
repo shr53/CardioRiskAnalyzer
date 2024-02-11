@@ -1,60 +1,46 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import streamlit as st
 import os
 
-# Get the absolute path to the directory containing this script
-script_directory = os.path.dirname(os.path.abspath(__file__))
-st.write("Script directory:", script_directory)
+def load_model(model_file_path):
+    return joblib.load(model_file_path)
 
-# Set page configuration
-st.set_page_config(
-    page_title="CardioRisk Analyzer",
-    page_icon="❤️",
-    layout="centered",
-    initial_sidebar_state="expanded"
-)
-# Load the pre-trained model
-model_file_path = os.path.join(script_directory, "random_forest_model.pkl")
-random_forest = joblib.load(model_file_path)
-st.write("Model file path:", model_file_path)
+def load_data(data_file_path):
+    return pd.read_csv(data_file_path)
 
-# Load the preprocessed data
-data_file_path = os.path.join(script_directory, "../data/heart_disease_preprocessed_data.csv")
-heart_df = pd.read_csv(data_file_path)
-
-def predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
-    # Load the trained model
-    model_file_path = "random_forest_model.pkl"
-    model = joblib.load(model_file_path)
-    
-    # Prepare the input features
-    data = {
-        'physicalhealthdays': physicalhealthdays,
-        'mentalhealthdays': mentalhealthdays,
-        'physicalactivities': physicalactivities,
-        'sleephours': sleephours,
-        'hadstroke': hadstroke,
-        'hadasthma': hadasthma,
-        'hadcopd': hadcopd,
-        'haddepressivedisorder': haddepressivedisorder,
-        'difficultyconcentrating': difficultyconcentrating,
-        'difficultywalking': difficultywalking,
-        'bmi': bmi,
-        'alcoholdrinkers': alcoholdrinkers,
-        'had_diabetes': had_diabetes,
-    }
-    
-    # Encode age column
-    age_columns = [col for col in heart_df.columns if col.startswith('age_Age')]
+def predict_heart_attack(model, data, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
+    age_columns = [col for col in data.columns if col.startswith('age_Age')]
     age_encoded = [1 if col == age_column else 0 for col in age_columns]
 
-    # Make prediction
-    prediction = model.predict([list(data.values()) + age_encoded + [received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker]])
+    prediction = model.predict([[
+        physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma,
+        hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers,
+        had_diabetes
+    ] + age_encoded + [received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker]])
+    
     return prediction
 
 def main():
+    # Set page configuration
+    st.set_page_config(
+        page_title="CardioRisk Analyzer",
+        page_icon="❤️",
+        layout="centered",
+        initial_sidebar_state="expanded"
+    )
+
+    # Get the absolute path to the directory containing this script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+    # Load the pre-trained model
+    model_file_path = os.path.join(script_directory, "random_forest_model.pkl")
+    random_forest = load_model(model_file_path)
+
+    # Load the preprocessed data
+    data_file_path = os.path.join(script_directory, "heart_disease_preprocessed_data.csv")
+    heart_df = load_data(data_file_path)
+
     st.write(
         "<div style='text-align: center;'><h1><span style='font-size: 36px;'>&#128147;</span> CardioRisk Analyzer</h1></div>",
         unsafe_allow_html=True
@@ -108,23 +94,19 @@ def main():
         smoking_former_smoker = 1 if smoking_status == "Former Smoker" else 0
 
         # Pass the features to the prediction function
-        result = predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
-        # Display prediction result
-        if result == 1:  # If prediction is Yes
+        result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
+        
+        if result == 1:
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
                 image_path1 = r"..\images\un_healthy.jpg"
                 st.image(image_path1, width=300)
-
-        else:  # If prediction is No
-            #Get the image path
-            image_path = "..\images\healthy_heart.png" 
-            # Center-align the image using Streamlit's layout options
+        else:
+            image_path = "..\images\healthy_heart.png"
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
-                # Display the image with custom width
                 st.image(image_path, width=300)
 
 if __name__ == "__main__":
