@@ -16,6 +16,7 @@ print("Current working directory:", os.getcwd())
 # Load the pre-trained model
 model_file_path = "../models/random_forest_model.pkl"
 random_forest = joblib.load(model_file_path)
+print("Model file path:", os.path.abspath(model_file_path))
 
 heart_df = pd.read_csv("../data/heart_disease_preprocessed_data.csv")
 
