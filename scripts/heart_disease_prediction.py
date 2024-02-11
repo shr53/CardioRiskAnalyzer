@@ -16,11 +16,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 # Load the pre-trained model
-model_file_path = "random_forest_model.pkl"
+model_file_path = os.path.join(script_directory, "random_forest_model.pkl")
 random_forest = joblib.load(model_file_path)
-print("Model file path:", os.path.abspath(model_file_path))
+st.write("Model file path:", model_file_path)
 
-heart_df = pd.read_csv("heart_disease_preprocessed_data.csv")
+# Load the preprocessed data
+data_file_path = os.path.join(script_directory, "../data/heart_disease_preprocessed_data.csv")
+heart_df = pd.read_csv(data_file_path)
 
 def predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
     # Load the trained model
