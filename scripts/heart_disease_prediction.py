@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import joblib
 import streamlit as st
+import os
+
+# Print the current working directory
+print("Current working directory:", os.getcwd())
 
 # Set page configuration
 st.set_page_config(
@@ -10,16 +14,15 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded"
 )
-
 # Load the pre-trained model
-model_file_path = "D:/MPS Analytics/CardioRiskAnalyzer/models/random_forest_model.pkl"
+model_file_path = "random_forest_model.pkl"
 random_forest = joblib.load(model_file_path)
 
-heart_df = pd.read_csv("D:/MPS Analytics/CardioRiskAnalyzer/data/heart_disease_preprocessed_data.csv")
+heart_df = pd.read_csv("heart_disease_preprocessed_data.csv")
 
 def predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
     # Load the trained model
-    model_file_path = "D:/MPS Analytics/CardioRiskAnalyzer/models/random_forest_model.pkl"
+    model_file_path = "random_forest_model.pkl"
     model = joblib.load(model_file_path)
     
     # Prepare the input features
