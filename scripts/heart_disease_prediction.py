@@ -11,10 +11,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+import os
+
 # Define function to get model file path
 def get_model_file_path():
-    # Use relative path for model file
-    return "../models/random_forest_model.pkl"
+    # Use os.path.join() for model file path
+    return os.path.join("..", "models", "random_forest_model.pkl")
 
 # Load the pre-trained model
 model_file_path = get_model_file_path()
@@ -22,8 +24,8 @@ random_forest = joblib.load(model_file_path)
 
 # Define function to load heart data
 def load_heart_data():
-    # Use relative path for CSV data file
-    return pd.read_csv("../data/heart_disease_preprocessed_data.csv")
+    # Use os.path.join() for CSV data file path
+    return pd.read_csv(os.path.join("..", "data", "heart_disease_preprocessed_data.csv"))
 
 heart_df = load_heart_data()
 
