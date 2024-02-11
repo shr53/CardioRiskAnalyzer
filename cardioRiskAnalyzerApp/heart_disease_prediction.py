@@ -9,10 +9,37 @@ def load_model(model_file_path):
 def load_data(data_file_path):
     return pd.read_csv(data_file_path)
 
-def predict_heart_attack(model, data, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
+def predict_heart_attack(model, data, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_range, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
+    # Map "Yes" and "No" to numerical values
+    yes_no_mapping = {"No": 0, "Yes": 1}
+
+    # Map categorical features to numerical values
+    hadstroke = yes_no_mapping[hadstroke]
+    hadasthma = yes_no_mapping[hadasthma]
+    hadcopd = yes_no_mapping[hadcopd]
+    haddepressivedisorder = yes_no_mapping[haddepressivedisorder]
+    difficultyconcentrating = yes_no_mapping[difficultyconcentrating]
+    difficultywalking = yes_no_mapping[difficultywalking]
+    alcoholdrinkers = yes_no_mapping[alcoholdrinkers]
+    had_diabetes = yes_no_mapping[had_diabetes]
+
+    # Encode age range
+    age_column = 'age_Age ' + age_range.replace(" ", "")
     age_columns = [col for col in data.columns if col.startswith('age_Age')]
     age_encoded = [1 if col == age_column else 0 for col in age_columns]
 
+    # Map received_vaccine and smoking_status to numerical values
+    received_vaccine_mapping = {"Tetanus": 1, "Not Received": 0, "TDAP": 1}
+    received_tetanus = received_vaccine_mapping["Tetanus"] if received_tetanus == 1 else 0
+    received_not = received_vaccine_mapping["Not Received"] if received_not == 1 else 0
+    received_tdap = received_vaccine_mapping["TDAP"] if received_tdap == 1 else 0
+
+    smoking_status_mapping = {"Never Smoked": 0, "Current Smoker": 1, "Former Smoker": 1}
+    smoking_status = smoking_status_mapping["Never Smoked"] if smoking_never_smoked == 1 else 0
+    smoking_status += smoking_status_mapping["Current Smoker"] if smoking_current_smoker == 1 else 0
+    smoking_status += smoking_status_mapping["Former Smoker"] if smoking_former_smoker == 1 else 0
+
+    # Pass the features to the prediction function
     prediction = model.predict([[
         physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma,
         hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers,
@@ -55,30 +82,21 @@ def main():
         unsafe_allow_html=True
     )
     st.sidebar.title("Parameter Selection")
-    # Define a dictionary to map "Yes" and "No" to numeric values
-    yes_no_mapping = {"No": 0, "Yes": 1}
+    
     # User input fields
     physicalhealthdays = st.sidebar.number_input("Physical Health Days", min_value=0, max_value=365)
     mentalhealthdays = st.sidebar.number_input("Mental Health Days", min_value=0, max_value=365)
     physicalactivities = st.sidebar.number_input("Physical Activities", min_value=0, max_value=24)
     sleephours = st.sidebar.number_input("Sleep Hours", min_value=0.0, max_value=24.0, step=0.5)
     hadstroke = st.sidebar.selectbox("Had Stroke", ["No", "Yes"])
-    hadstroke = yes_no_mapping[hadstroke]  # Map "Yes" and "No" to 1 and 0
     hadasthma = st.sidebar.selectbox("Had Asthma", ["No", "Yes"])
-    hadasthma = yes_no_mapping[hadasthma]  # Map "Yes" and "No" to 1 and 0
     hadcopd = st.sidebar.selectbox("Had COPD", ["No", "Yes"])
-    hadcopd = yes_no_mapping[hadcopd]  # Map "Yes" and "No" to 1 and 0
     haddepressivedisorder = st.sidebar.selectbox("Had Depressive Disorder", ["No", "Yes"])
-    haddepressivedisorder = yes_no_mapping[haddepressivedisorder]  # Map "Yes" and "No" to 1 and 0
     difficultyconcentrating = st.sidebar.selectbox("Difficulty Concentrating", ["No", "Yes"])
-    difficultyconcentrating = yes_no_mapping[difficultyconcentrating]  # Map "Yes" and "No" to 1 and 0
     difficultywalking = st.sidebar.selectbox("Difficulty Walking", ["No", "Yes"])
-    difficultywalking = yes_no_mapping[difficultywalking]  # Map "Yes" and "No" to 1 and 0
     bmi = st.sidebar.number_input("BMI", min_value=10.0, max_value=50.0)
     alcoholdrinkers = st.sidebar.selectbox("Alcohol Drinkers", ["No", "Yes"])
-    alcoholdrinkers = yes_no_mapping[alcoholdrinkers]  # Map "Yes" and "No" to 1 and 0
     had_diabetes = st.sidebar.selectbox("Had Diabetes", ["No", "Yes"])
-    had_diabetes = yes_no_mapping[had_diabetes]  # Map "Yes" and "No" to 1 and 0
     age_range = st.sidebar.selectbox("Age Range", ["18 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 or older"])
     received_vaccine = st.sidebar.selectbox("Received Vaccine", ["Tetanus", "Not Received", "TDAP"])
     smoking_status = st.sidebar.selectbox("Smoking Status", ["Never Smoked", "Current Smoker", "Former Smoker"])
@@ -86,8 +104,11 @@ def main():
     result = None  # Initialize result variable
 
     if st.sidebar.button("Predict"):
-        # Prepare the features as required for prediction
-        age_column = 'age_Age ' + age_range.replace(" ", "")  # Fixing the age column format
+        # Assign a value to received_vaccine first
+        received_vaccine_mapping = {"Tetanus": 1, "Not Received": 0, "TDAP": 1}
+        received_vaccine_val = received_vaccine_mapping[received_vaccine]
+        
+        # Calculate other variables based on received_vaccine value
         received_tetanus = 1 if received_vaccine == "Tetanus" else 0
         received_not = 1 if received_vaccine == "Not Received" else 0
         received_tdap = 1 if received_vaccine == "TDAP" else 0
@@ -95,17 +116,16 @@ def main():
         smoking_current_smoker = 1 if smoking_status == "Current Smoker" else 0
         smoking_former_smoker = 1 if smoking_status == "Former Smoker" else 0
 
-        # Pass the features to the prediction function
-        result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
+        result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_range, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
         
-    if result == 1:
+    if result is not None:
         col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
-    elif result == 0:  # Check for 0 as well
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
+        if result == 1:
+            with col2:
+                st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
+        elif result == 0:
+            with col2:
+                st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
