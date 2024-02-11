@@ -13,12 +13,8 @@ st.set_page_config(
 
 # Define function to get model file path
 def get_model_file_path():
-    if "DEPLOYMENT_ENV" in os.environ:
-        # Use relative path in deployment environment
-        return "models/random_forest_model.pkl"
-    else:
-        # Use absolute path in local environment
-        return "D:/MPS Analytics/CardioRiskAnalyzer/models/random_forest_model.pkl"
+    # Use relative path for model file
+    return "../models/random_forest_model.pkl"
 
 # Load the pre-trained model
 model_file_path = get_model_file_path()
@@ -26,12 +22,8 @@ random_forest = joblib.load(model_file_path)
 
 # Define function to load heart data
 def load_heart_data():
-    if "DEPLOYMENT_ENV" in os.environ:
-        # Use relative path in deployment environment
-        return pd.read_csv("data/heart_disease_preprocessed_data.csv")
-    else:
-        # Use absolute path in local environment
-        return pd.read_csv("D:/MPS Analytics/CardioRiskAnalyzer/data/heart_disease_preprocessed_data.csv")
+    # Use relative path for CSV data file
+    return pd.read_csv("../data/heart_disease_preprocessed_data.csv")
 
 heart_df = load_heart_data()
 
