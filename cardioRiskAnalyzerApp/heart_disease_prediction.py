@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
+import time
 
 def load_model(model_file_path):
     return joblib.load(model_file_path)
@@ -48,6 +49,19 @@ def predict_heart_attack(model, data, physicalhealthdays, mentalhealthdays, phys
     ] + age_encoded + [received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker]])
     
     return prediction
+# Define the throttle rate (in seconds)
+THROTTLE_RATE = 0.3
+
+# Initialize the last update time
+last_update_time = time.time()
+
+def throttle():
+    global last_update_time
+    current_time = time.time()
+    elapsed_time = current_time - last_update_time
+    if elapsed_time < THROTTLE_RATE:
+        time.sleep(THROTTLE_RATE - elapsed_time)
+    last_update_time = time.time()
 
 def main():
     # Set page configuration
@@ -88,6 +102,7 @@ def main():
     physicalhealthdays = st.sidebar.slider("Physical Health Days", min_value=0, max_value=30, value=15)
     mentalhealthdays = st.sidebar.slider("Mental Health Days", min_value=0, max_value=30, value=15)
     sleephours = st.sidebar.slider("Sleep Hours", min_value=0, max_value=30, value=15)
+    throttle()
     physicalactivities = st.sidebar.selectbox("Physical Activities", ["No", "Yes"])
     hadstroke = st.sidebar.selectbox("Had Stroke", ["No", "Yes"])
     hadasthma = st.sidebar.selectbox("Had Asthma", ["No", "Yes"])
@@ -95,7 +110,8 @@ def main():
     haddepressivedisorder = st.sidebar.selectbox("Had Depressive Disorder", ["No", "Yes"])
     difficultyconcentrating = st.sidebar.selectbox("Difficulty Concentrating", ["No", "Yes"])
     difficultywalking = st.sidebar.selectbox("Difficulty Walking", ["No", "Yes"])
-    bmi = st.sidebar.text_input("BMI (between 12 and 90)")
+    bmi = st.sidebar.text_input("BMI (between 12 and 90)", placeholder="Enter your BMI here")
+    throttle()
     alcoholdrinkers = st.sidebar.selectbox("Alcohol Drinkers", ["No", "Yes"])
     had_diabetes = st.sidebar.selectbox("Had Diabetes", ["No", "Yes"])
     age_range = st.sidebar.selectbox("Age Range", ["18 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49", "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 or older"])
@@ -105,9 +121,9 @@ def main():
     result = None  # Initialize result variable
 
     if st.sidebar.button("Predict"):
-        # Check if BMI input is valid
-        if bmi == "Enter your BMI here":
-            st.error("Please enter a valid BMI.")
+        # Check if BMI input is valid 
+        if not bmi:
+            st.markdown("<div style='text-align: center; background-color:#FFCDD2; color:black; padding:10px;'>BMI value is required.</div>", unsafe_allow_html=True)
         else:
             # Assign a value to received_vaccine first
             received_vaccine_mapping = {"Tetanus": 1, "Not Received": 0, "TDAP": 1}
