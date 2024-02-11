@@ -4,8 +4,9 @@ import joblib
 import streamlit as st
 import os
 
-# Print the current working directory
-print("Current working directory:", os.getcwd())
+# Get the absolute path to the directory containing this script
+script_directory = os.path.dirname(os.path.abspath(__file__))
+st.write("Script directory:", script_directory)
 
 # Set page configuration
 st.set_page_config(
