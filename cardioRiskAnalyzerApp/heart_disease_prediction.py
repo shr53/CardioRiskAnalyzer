@@ -83,6 +83,8 @@ def main():
     received_vaccine = st.sidebar.selectbox("Received Vaccine", ["Tetanus", "Not Received", "TDAP"])
     smoking_status = st.sidebar.selectbox("Smoking Status", ["Never Smoked", "Current Smoker", "Former Smoker"])
 
+    result = None  # Initialize result variable
+
     if st.sidebar.button("Predict"):
         # Prepare the features as required for prediction
         age_column = 'age_Age ' + age_range.replace(" ", "")  # Fixing the age column format
@@ -96,18 +98,14 @@ def main():
         # Pass the features to the prediction function
         result = predict_heart_attack(random_forest, heart_df, physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker)
         
-        if result == 1:
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
-                image_path1 = "un_healthy.jpg"
-                st.image(image_path1, width=300)
-        else:
-            image_path = "healthy_heart.png"
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
-                st.image(image_path, width=300)
+    if result == 1:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
+    elif result == 0:  # Check for 0 as well
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown("<p style='text-align:center; background-color:#6EBB62; color:white; padding:10px;'>You are not at risk of heart disease.</p>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
