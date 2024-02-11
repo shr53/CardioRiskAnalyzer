@@ -11,27 +11,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-import os
-
-# Define function to get model file URL
-def get_model_file_url():
-    # URL for the model file hosted on GitHub
-    return "https://raw.githubusercontent.com/shr53/CardioRiskAnalyzer/main/models/random_forest_model.pkl"
-
 # Load the pre-trained model
-model_file_url = get_model_file_url()
-random_forest = joblib.load(model_file_url)
+model_file_path = "../models/random_forest_model.pkl"
+random_forest = joblib.load(model_file_path)
 
-# Define function to load heart data
-def load_heart_data():
-    # URL for the CSV data file hosted on GitHub
-    return pd.read_csv("https://raw.githubusercontent.com/shr53/CardioRiskAnalyzer/main/data/heart_disease_preprocessed_data.csv")
+heart_df = pd.read_csv("../data/heart_disease_preprocessed_data.csv")
 
-heart_df = load_heart_data()
-
-# Define prediction function
 def predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivities, sleephours, hadstroke, hadasthma, hadcopd, haddepressivedisorder, difficultyconcentrating, difficultywalking, bmi, alcoholdrinkers, had_diabetes, age_column, received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker):
     # Load the trained model
+    model_file_path = "../models/random_forest_model.pkl"
     model = joblib.load(model_file_path)
     
     # Prepare the input features
@@ -59,7 +47,6 @@ def predict_heart_attack(physicalhealthdays, mentalhealthdays, physicalactivitie
     prediction = model.predict([list(data.values()) + age_encoded + [received_tetanus, received_not, received_tdap, smoking_never_smoked, smoking_current_smoker, smoking_former_smoker]])
     return prediction
 
-# Define main function
 def main():
     st.write(
         "<div style='text-align: center;'><h1><span style='font-size: 36px;'>&#128147;</span> CardioRisk Analyzer</h1></div>",
@@ -120,12 +107,12 @@ def main():
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown("<p style='text-align:center; background-color:red; color:white; padding:10px;'>You are at risk of heart disease.</p>", unsafe_allow_html=True)
-                image_path1 = "../images/un_healthy.jpg"
+                image_path1 = r"..\images\un_healthy.jpg"
                 st.image(image_path1, width=300)
 
         else:  # If prediction is No
             #Get the image path
-            image_path = "../images/healthy_heart.png" 
+            image_path = "..\images\healthy_heart.png" 
             # Center-align the image using Streamlit's layout options
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
